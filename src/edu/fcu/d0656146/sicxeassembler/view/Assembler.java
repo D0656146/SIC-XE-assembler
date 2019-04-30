@@ -13,18 +13,22 @@ public class Assembler {
      */
     public static void main(String[] args) {
 
+        boolean xeAvailable = argsProcess(args);
+
         SICXEAssembler assembler = new SICXEAssembler();
 
-        argsProcess(args, assembler);
+        if (xeAvailable) {
+            assembler.enableXE();
+        }
 
         assembler.open(args[0]);
         assembler.assemble();
         assembler.output();
-        //assembler.autoAssemble();
+        //assembler.autoAssemble(args[0]);
     }
 
     //Processing command line argument
-    private static void argsProcess(String[] args, SICXEAssembler assembler) {
+    private static boolean argsProcess(String[] args) {
         if (args.length == 0) {
             System.err.println("Missing filename.");
             System.exit(1);
@@ -33,9 +37,15 @@ public class Assembler {
             System.err.println("Unknown arguments");
             System.exit(1);
         }
-        if (args.length == 2 && args[1].toLowerCase().equals("-xe")) {
-            assembler.allowXE();
+        //determine argument "-xe"
+        if (args.length == 2) {
+            if (args[1].toLowerCase().equals("-xe")) {
+                return true;
+            } else {
+                System.err.println("Unknown arguments");
+                System.exit(1);
+            }
         }
+        return false;
     }
-
 }
