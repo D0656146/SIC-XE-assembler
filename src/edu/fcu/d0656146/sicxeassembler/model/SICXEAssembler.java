@@ -6,8 +6,8 @@ package edu.fcu.d0656146.sicxeassembler.model;
  */
 public class SICXEAssembler {
 
-    SICXEAssemblyProgram asmProgram;
-    SICXEObjectProgram objProgram;
+    private SICXEAssemblyProgram asmProgram;
+    private SICXEObjectProgram objProgram;
 
     /**
      * Read assembly program from file.
