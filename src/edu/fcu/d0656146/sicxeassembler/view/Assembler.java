@@ -1,6 +1,7 @@
 package edu.fcu.d0656146.sicxeassembler.view;
 
 import edu.fcu.d0656146.sicxeassembler.model.SICXEAssembler;
+import java.io.IOException;
 
 /**
  *
@@ -11,7 +12,7 @@ public class Assembler {
     /**
      * @param args sic/xe program filename, optional -xe argument to enable xe
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         boolean xeAvailable = argsProcess(args);
 
