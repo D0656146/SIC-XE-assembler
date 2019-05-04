@@ -9,33 +9,39 @@ import java.util.HashMap;
 public class SICXEInstruction extends SICXEStandardInstruction {
 
     private int lineNumber;
-    private HexInteger location;
+    private int location;
     private String addressLable;
     private String operand;
-    private int instructionLength;
 
     private boolean isExtended;
     private boolean isIndexAddressing;
     private AddressingMode addressingMode;
 
-    SICXEInstruction(String addressLable, String mnemonicOpcode, String operand, int lineNumber, HexInteger location,
+    SICXEInstruction(String addressLable, String mnemonicOpcode, String operand, int lineNumber, int location,
             HashMap<String, SICXEStandardInstruction> instructionTable, HashMap<String, Integer> registerTable)
             throws AssembleException {
+        //temporarily filled up to avoid compile error, no actual effect
+        super(true, true, "TEMP", 0x00, OperandType.NO_OPERAND, 0);
+        //simple assignments
         this.lineNumber = lineNumber;
-        this.location = new HexInteger(location);
+        this.location = location;
+        this.addressLable = addressLable;
+        this.mnemonicOpcode = mnemonicOpcode;
+        this.operand = operand;
         //match mnemonic opcode
         if (!instructionTable.containsKey(mnemonicOpcode)) {
-            throw new AssembleException("Unknown operation \"" + mnemonicOpcode + "\".", lineNumber);
+            throw new AssembleException("Unknown operation " + mnemonicOpcode + ".", lineNumber);
         }
         SICXEStandardInstruction model = instructionTable.get(mnemonicOpcode);
-        this.mnemonicOpcode = model.mnemonicOpcode;
         hexOpcode = model.hexOpcode;
         operandType = model.operandType;
         isXEOnly = model.isXEOnly;
         isPsuedo = model.isPsuedo;
+        instructionLength = model.instructionLength;
         //check operand
+        addressingMode = AddressingMode.SIC;
         isIndexAddressing = false;
-        String[] registers = operand.split(",");;
+        String[] registers = operand.split(",");
         switch (model.operandType) {
             case NO_OPERAND:
                 if (!operand.isEmpty()) {
@@ -56,10 +62,59 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                 }
                 break;
             case ADDRESS:
+                if (registers.length > 1) {
+                    if (registers.length == 2 || registers[1].equals("X")) {
+                        isIndexAddressing = true;
+                    } else {
+                        throw new AssembleException("Two much arguments for " + mnemonicOpcode + ".", lineNumber);
+                    }
+
+                }
                 if (!SICXEAssemblyProgram.isOpcodeLableLegal(operand)) {
                     throw new AssembleException("Illegal symbol name.", lineNumber);
                 }
                 break;
+            case CONSTANT:
+                this.operand = parseConstant(operand);
+                break;
+            case DEMICAL:
+                //RESW, RESB, WORD
+                try {
+                    instructionLength = Integer.parseInt(operand);
+                } catch (NumberFormatException ex) {
+                    throw new AssembleException("operand follow " + mnemonicOpcode + " should be a integer", lineNumber);
+                }
+                if (mnemonicOpcode.equals("RESW")) {
+                    instructionLength *= 3;
+                }
+                if (mnemonicOpcode.equals("WORD")) {
+                    instructionLength = 3;
+                }
+        }
+    }
+
+    private String parseConstant(String operand) throws AssembleException {
+        char mode = operand.charAt(0);
+        if (mode != 'C' || mode != 'X' || operand.charAt(1) != '\'' || operand.charAt(operand.length() - 1) != '\'') {
+            throw new AssembleException("Illegal operand of " + this.mnemonicOpcode + ".", this.lineNumber);
+        }
+        operand = operand.substring(2, operand.length());
+        if (mode == 'C') {
+            String convertedOperand = "";
+            for (char c : operand.toCharArray()) {
+                convertedOperand += Integer.toHexString((int) c);
+            }
+            return convertedOperand;
+        } else {
+            if (operand.length() % 2 == 1) {
+                throw new AssembleException("Odd length hex operand after " + this.mnemonicOpcode + ".", lineNumber);
+            }
+            try {
+                Integer.parseInt(operand, 16);
+            } catch (NumberFormatException ex) {
+                throw new AssembleException("Illegal operand of " + this.mnemonicOpcode + ".", lineNumber);
+            }
+            return operand;
         }
     }
 }

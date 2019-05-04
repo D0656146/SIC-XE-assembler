@@ -10,11 +10,13 @@ public class SICXEStandardInstruction {
     protected boolean isPsuedo;
 
     protected String mnemonicOpcode;
-    protected HexInteger hexOpcode;
+    protected int hexOpcode;
     protected OperandType operandType;
 
+    protected int instructionLength;
+
     SICXEStandardInstruction(boolean isXEOnly, boolean isPsuedo,
-            String mnemonicOpcode, HexInteger hexOpcode,
+            String mnemonicOpcode, int hexOpcode,
             OperandType operandType, int instructionLength) {
         this.isXEOnly = isXEOnly;
         this.isPsuedo = isPsuedo;
@@ -22,5 +24,6 @@ public class SICXEStandardInstruction {
         this.mnemonicOpcode = mnemonicOpcode;
         this.hexOpcode = hexOpcode;
         this.operandType = operandType;
+        this.instructionLength = instructionLength;
     }
 }

@@ -1,7 +1,11 @@
 package edu.fcu.d0656146.sicxeassembler.view;
 
+import edu.fcu.d0656146.sicxeassembler.model.AssembleException;
 import edu.fcu.d0656146.sicxeassembler.model.SICXEAssembler;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -10,9 +14,9 @@ import java.io.IOException;
 public class Assembler {
 
     /**
-     * @param args sic/xe program filename, optional -xe argument to enable xe
+     * @param args sic/xe program filename, optional -xe argument to enable xe(not yet done)
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         boolean xeAvailable = argsProcess(args);
 
@@ -22,10 +26,16 @@ public class Assembler {
             assembler.enableXE();
         }
 
-        assembler.open(args[0]);
-        assembler.assemble();
-        assembler.output();
-        //assembler.autoAssemble(args[0]);
+        try {
+            assembler.open(args[0]);
+            assembler.assemble();
+            assembler.output();
+            //assembler.autoAssemble(args[0]);
+        } catch (IOException ex) {
+            Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (AssembleException ex) {
+            Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     //Processing command line argument
