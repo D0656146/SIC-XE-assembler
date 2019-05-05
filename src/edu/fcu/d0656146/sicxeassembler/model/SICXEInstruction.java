@@ -21,7 +21,7 @@ public class SICXEInstruction extends SICXEStandardInstruction {
             HashMap<String, SICXEStandardInstruction> instructionTable, HashMap<String, Integer> registerTable)
             throws AssembleException {
         //temporarily filled up to avoid compile error, no actual effect
-        super(true, true, "TEMP", 0x00, OperandType.NO_OPERAND, 0);
+        super(true, true, "TEMP", 0x00, OperandType.NO_OPE, 0);
         //simple assignments
         this.lineNumber = lineNumber;
         this.location = location;
@@ -43,12 +43,12 @@ public class SICXEInstruction extends SICXEStandardInstruction {
         isIndexAddressing = false;
         String[] registers = operand.split(",");
         switch (model.operandType) {
-            case NO_OPERAND:
+            case NO_OPE:
                 if (!operand.isEmpty()) {
                     throw new AssembleException("Unexpected operand follow " + mnemonicOpcode + ".", lineNumber);
                 }
                 break;
-            case ONE_REGISTER:
+            case ONE_REG:
                 if (registers.length != 1) {
                     throw new AssembleException(mnemonicOpcode + " needs 1 register.", lineNumber);
                 }
@@ -56,7 +56,7 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                     throw new AssembleException("Unknown register " + registers[0] + ".", lineNumber);
                 }
                 break;
-            case TWO_REGISTER:
+            case TWO_REG:
                 if (registers.length != 2) {
                     throw new AssembleException(mnemonicOpcode + " needs 2 registers.", lineNumber);
                 }
@@ -74,7 +74,7 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                     throw new AssembleException("Illegal symbol name.", lineNumber);
                 }
                 break;
-            case CONSTANT:
+            case CONST:
                 this.operand = parseConstant(operand);
                 break;
             case DEMICAL:
