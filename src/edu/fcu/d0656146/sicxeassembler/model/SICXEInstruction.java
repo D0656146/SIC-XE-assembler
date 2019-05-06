@@ -18,7 +18,8 @@ public class SICXEInstruction extends SICXEStandardInstruction {
     private AddressingMode addressingMode;
 
     SICXEInstruction(String addressLable, String mnemonicOpcode, String operand, int lineNumber, int location,
-            HashMap<String, SICXEStandardInstruction> instructionTable, HashMap<String, Integer> registerTable)
+            HashMap<String, SICXEStandardInstruction> instructionTable,
+            HashMap<String, SICXERegister> registerTable)
             throws AssembleException {
         //temporarily filled up to avoid compile error, no actual effect
         super(true, true, "TEMP", 0x00, OperandType.NO_OPE, 0);
@@ -60,7 +61,11 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                 if (registers.length != 2) {
                     throw new AssembleException(mnemonicOpcode + " needs 2 registers.", lineNumber);
                 }
+                if (!registerTable.containsKey(registers[0]) || !registerTable.containsKey(registers[1])) {
+                    throw new AssembleException("Unknown register " + registers[0] + ".", lineNumber);
+                }
                 break;
+
             case ADDRESS:
                 if (registers.length > 1) {
                     if (registers.length == 2 || registers[1].equals("X")) {
@@ -106,11 +111,11 @@ public class SICXEInstruction extends SICXEStandardInstruction {
             }
             return convertedOperand;
         } else {
-            if (operand.length() % 2 == 1) {
-                throw new AssembleException("Odd length hex operand after " + this.mnemonicOpcode + ".", lineNumber);
-            }
             try {
                 Integer.parseInt(operand, 16);
+                if (operand.length() % 2 == 1) {
+                    throw new AssembleException("Odd length hex operand after " + this.mnemonicOpcode + ".", lineNumber);
+                }
             } catch (NumberFormatException ex) {
                 throw new AssembleException("Illegal operand of " + this.mnemonicOpcode + ".", lineNumber);
             }

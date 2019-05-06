@@ -1,0 +1,10 @@
+#name   number  isXEOnly
+A       0       false
+X       1       false
+L       2       false
+B       3       true
+S       4       true
+T       5       true
+F       6       true
+PC      8       false
+SW      9       false

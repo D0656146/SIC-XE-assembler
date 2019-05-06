@@ -28,7 +28,7 @@ public class SICXEAssemblyProgram {
      * @throws AssembleException
      */
     public void parseCode(HashMap<String, SICXEStandardInstruction> instructionTable,
-            HashMap<String, Integer> registerTable)
+            HashMap<String, SICXERegister> registerTable)
             throws IOException, AssembleException {
 
         BufferedReader reader = new BufferedReader(new FileReader(filename));
@@ -102,7 +102,7 @@ public class SICXEAssemblyProgram {
             codes.add(tempInstruction);
             //update symbol table
             if (symbolTable.containsKey(addressLable)) {
-                throw new AssembleException("Duplicated symbol" + addressLable + ".", lineNumber);
+                throw new AssembleException("Duplicated symbol" + addressLable + ".", location);
             }
             if (!addressLable.isEmpty()) {
                 symbolTable.put(addressLable, location);

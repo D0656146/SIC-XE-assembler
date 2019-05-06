@@ -2,7 +2,6 @@ package edu.fcu.d0656146.sicxeassembler.view;
 
 import edu.fcu.d0656146.sicxeassembler.model.AssembleException;
 import edu.fcu.d0656146.sicxeassembler.model.SICXEAssembler;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,19 +13,20 @@ import java.util.logging.Logger;
 public class Assembler {
 
     /**
-     * @param args sic/xe program filename, optional -xe argument to enable xe(not yet done)
+     * @param args sic/xe program filename, optional -xe argument to enable
+     * xe(not yet done)
      */
     public static void main(String[] args) {
 
-        boolean xeAvailable = argsProcess(args);
-
-        SICXEAssembler assembler = new SICXEAssembler();
-
-        if (xeAvailable) {
-            assembler.enableXE();
-        }
-
         try {
+            boolean xeAvailable = argsProcess(args);
+
+            SICXEAssembler assembler = new SICXEAssembler();
+
+            if (xeAvailable) {
+                assembler.enableXE();
+            }
+
             assembler.open(args[0]);
             assembler.assemble();
             assembler.output();

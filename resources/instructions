@@ -1,0 +1,43 @@
+#opcode hex_op  opetype length  XEonly  psuedo
+
+START   ff      ADDRESS 0       false   true
+END     ff      ADDRESS 0       false   true
+
+BYTE    ff      CONST   0       false   true
+WORD    ff      DEMICAL 0       false   true
+RESB    ff      DEMICAL 0       false   true
+RESW    ff      DEMICAL 0       false   true
+
+ADD     18      ADDRESS 3       false   false
+SUB     1c      ADDRESS 3       false   false
+MUL     20      ADDRESS 3       false   false
+DIV     24      ADDRESS 3       false   false
+
+AND     40      ADDRESS 3       false   false
+OR      44      ADDRESS 3       false   false
+
+COMP    28      ADDRESS 3       false   false
+TIX     2c      ADDRESS 3       false   false
+
+J       3c      ADDRESS 3       false   false
+JEQ     30      ADDRESS 3       false   false
+JGT     34      ADDRESS 3       false   false
+JLT     38      ADDRESS 3       false   false
+
+JSUB    48      ADDRESS 3       false   false
+RSUB    4c      NO_OPE  3       false   false
+
+LDA     00      ADDRESS 3       false   false
+LDX     04      ADDRESS 3       false   false
+LDL     08      ADDRESS 3       false   false
+LDCH    50      ADDRESS 3       false   false
+
+STA     0c      ADDRESS 3       false   false
+STX     10      ADDRESS 3       false   false
+STL     14      ADDRESS 3       false   false
+STSW    e8      ADDRESS 3       false   false
+STCH    54      ADDRESS 3       false   false
+
+TD      e0      ADDRESS 3       false   false
+RD      d8      ADDRESS 3       false   false
+WD      dc      ADDRESS 3       false   false
