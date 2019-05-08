@@ -4,9 +4,9 @@ START   ff      ADDRESS 0       false   true
 END     ff      ADDRESS 0       false   true
 
 BYTE    ff      CONST   0       false   true
-WORD    ff      DEMICAL 0       false   true
-RESB    ff      DEMICAL 0       false   true
-RESW    ff      DEMICAL 0       false   true
+WORD    ff      DECIMAL 0       false   true
+RESB    ff      DECIMAL 0       false   true
+RESW    ff      DECIMAL 0       false   true
 
 ADD     18      ADDRESS 3       false   false
 SUB     1c      ADDRESS 3       false   false

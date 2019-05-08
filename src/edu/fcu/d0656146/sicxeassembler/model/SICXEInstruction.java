@@ -81,8 +81,9 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                 break;
             case CONST:
                 this.operand = parseConstant(operand);
+                instructionLength = operand.length() / 2;
                 break;
-            case DEMICAL:
+            case DECIMAL:
                 //RESW, RESB, WORD
                 try {
                     instructionLength = Integer.parseInt(operand);
@@ -94,6 +95,23 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                 }
                 if (mnemonicOpcode.equals("WORD")) {
                     instructionLength = 3;
+                    try {
+                        int value = Integer.parseInt(operand);
+                        //2's complement
+                        if (value < 0) {
+                            value += 0x1000000;
+                        }
+                        this.operand = Integer.toHexString(value);
+                        if (operand.length() > 6) {
+                            throw new NumberFormatException();
+                        }
+
+                    } catch (NumberFormatException ex) {
+                        throw new AssembleException("Illegal number", lineNumber);
+                    }
+                    while (operand.length() < 6) {
+                        this.operand = "0" + this.operand;
+                    }
                 }
         }
     }
@@ -121,5 +139,13 @@ public class SICXEInstruction extends SICXEStandardInstruction {
             }
             return operand;
         }
+    }
+
+    public String getOperand() {
+        return operand;
+    }
+
+    public int getLinenumber() {
+        return lineNumber;
     }
 }

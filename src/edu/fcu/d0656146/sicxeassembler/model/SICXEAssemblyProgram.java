@@ -10,9 +10,9 @@ import java.util.HashMap;
  */
 public class SICXEAssemblyProgram {
 
-    private final String filename;
-    private final ArrayList<SICXEInstruction> codes;
-    private final HashMap<String, Integer> symbolTable;
+    public final String filename;
+    public final ArrayList<SICXEInstruction> codes;
+    public final HashMap<String, Integer> symbolTable;
 
     SICXEAssemblyProgram(String filename) {
         this.filename = filename;
