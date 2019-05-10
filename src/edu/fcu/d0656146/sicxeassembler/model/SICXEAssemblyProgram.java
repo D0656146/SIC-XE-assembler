@@ -13,6 +13,8 @@ public class SICXEAssemblyProgram {
     public final String filename;
     public final ArrayList<SICXEInstruction> codes;
     public final HashMap<String, Integer> symbolTable;
+    public int programLength;
+    public int startAddress;
 
     SICXEAssemblyProgram(String filename) {
         this.filename = filename;
@@ -80,6 +82,7 @@ public class SICXEAssemblyProgram {
                 }
                 try {
                     location = Integer.parseInt(operand, 16);
+                    startAddress = location;
                 } catch (NumberFormatException ex) {
                     throw new AssembleException("Illegal operand of START.", lineNumber);
                 }
@@ -115,6 +118,7 @@ public class SICXEAssemblyProgram {
         if (!endExist) {
             throw new AssembleException("Missing END.", lineNumber);
         }
+        programLength = location;
     }
 
     //determine if a opcode or lable legal

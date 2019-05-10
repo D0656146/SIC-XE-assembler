@@ -29,7 +29,7 @@ public class Assembler {
 
             assembler.open(args[0]);
             assembler.assemble();
-            assembler.output();
+            assembler.output(args[0] + ".obj");
             //assembler.autoAssemble(args[0]);
         } catch (IOException ex) {
             Logger.getLogger(Assembler.class.getName()).log(Level.SEVERE, null, ex);

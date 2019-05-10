@@ -141,11 +141,19 @@ public class SICXEInstruction extends SICXEStandardInstruction {
         }
     }
 
+    public String getAddressLable() {
+        return addressLable;
+    }
+
     public String getOperand() {
         return operand;
     }
 
     public int getLinenumber() {
         return lineNumber;
+    }
+
+    public int getLocation() {
+        return location;
     }
 }

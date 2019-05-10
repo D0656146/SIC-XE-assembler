@@ -38,7 +38,35 @@ public class SICXEAssembler {
         objProgram = new SICXEObjectProgram(asmProgram, registerTable);
     }
 
-    public void output() {
+    public void output(String filename) throws AssembleException, IOException {
+        FileWriter writer = new FileWriter(filename);
+        String code = "H" + asmProgram.codes.get(0).getAddressLable();
+        while (code.length() < 7) {
+            code += " ";
+        }
+        writer.write(code);
+        writer.write(objProgram.startAddress);
+        writer.write(objProgram.programLength);
+        int part = 0;
+        int length = objProgram.breakPoint.get(part + 1) - objProgram.breakPoint.get(part);
+        code = Integer.toHexString(length);
+        if (code.length() < 2) {
+            code = "0" + code;
+        }
+        writer.write("\nT" + code);
+        for (String objectCode : objProgram.objectCodes) {
+            if (objectCode.equals("RES")) {
+                part++;
+                length = objProgram.breakPoint.get(part + 1) - objProgram.breakPoint.get(part);
+                code = Integer.toHexString(length);
+                if (code.length() < 2) {
+                    code = "0" + code;
+                }
+                writer.write("\nT" + code);
+            }
+            writer.write(objectCode);
+        }
+        writer.write("\nE" + objProgram.startAddress + "\n");
     }
 
     public void enableXE() {
@@ -81,5 +109,4 @@ public class SICXEAssembler {
             registerTable.put(name, new SICXERegister(name, number, isXEOnly));
         }
     }
-
 }

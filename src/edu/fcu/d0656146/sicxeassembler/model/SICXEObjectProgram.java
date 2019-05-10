@@ -8,32 +8,44 @@ import java.util.*;
  */
 public class SICXEObjectProgram {
 
-    private final ArrayList<String> objectCodes;
+    public final ArrayList<String> objectCodes;
+    public final ArrayList<Integer> breakPoint;
+    public final String startAddress;
+    public final String programLength;
 
     public SICXEObjectProgram(SICXEAssemblyProgram asmProgram,
             HashMap<String, SICXERegister> registerTable) throws AssembleException {
         this.objectCodes = new ArrayList<>();
+        this.breakPoint = new ArrayList<>();
+        String temp = Integer.toString(asmProgram.startAddress, 16);
+        patchZero(temp, 6);
+        startAddress = temp;
+        temp = Integer.toHexString(asmProgram.programLength);
+        patchZero(temp, 6);
+        programLength = temp;
+        breakPoint.add(asmProgram.startAddress);
+
         for (SICXEInstruction instruction : asmProgram.codes) {
             String objectCode = "";
             switch (instruction.operandType) {
                 case NO_OPE:
-                    objectCode += Integer.toString(instruction.hexOpcode, 16);
+                    objectCode += Integer.toHexString(instruction.hexOpcode);
                     patchZero(objectCode, instruction.instructionLength * 2);
                     break;
                 case ONE_REG:
-                    objectCode += Integer.toString(instruction.hexOpcode, 16);
+                    objectCode += Integer.toHexString(instruction.hexOpcode);
                     objectCode += "0" + Integer.toString(registerTable.get(instruction.getOperand()).number);
                     patchZero(objectCode, instruction.instructionLength * 2);
                     break;
                 case TWO_REG:
-                    objectCode += Integer.toString(instruction.hexOpcode, 16);
+                    objectCode += Integer.toHexString(instruction.hexOpcode);
                     String[] registers = instruction.getOperand().split(",");
                     objectCode += "0" + Integer.toString(registerTable.get(registers[0]).number);
                     objectCode += "0" + Integer.toString(registerTable.get(registers[1]).number);
                     patchZero(objectCode, instruction.instructionLength * 2);
                     break;
                 case ADDRESS:
-                    objectCode += Integer.toString(instruction.hexOpcode, 16);
+                    objectCode += Integer.toHexString(instruction.hexOpcode);
                     int address;
                     try {
                         address = Integer.parseInt(instruction.getOperand(), 16);
@@ -50,12 +62,13 @@ public class SICXEObjectProgram {
                     objectCode = instruction.getOperand();
                     break;
                 case DECIMAL:
+                    breakPoint.add(instruction.getLocation());
                     objectCode = "RES";
-                    objectCode += instruction.instructionLength;
                     break;
             }
             this.objectCodes.add(objectCode.toUpperCase());
         }
+        breakPoint.add(asmProgram.programLength);
     }
 
     private String patchZero(String target, int length) {
