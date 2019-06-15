@@ -60,7 +60,7 @@ IDE：Apache NetBeans 9.0
 
 其餘SIC/XE全指令及所有定址模式全部支援
 
-指令列表詳見src/edu/fcu/d0656146/model/instruction
+指令列表詳見resources/instructions
 
 可產生幾乎全部（除了機器獨立指令外）的錯誤訊息
 
