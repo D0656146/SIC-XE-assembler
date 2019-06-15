@@ -2,22 +2,44 @@
 
 START   ff      ADDRESS 0       false   true
 END     ff      ADDRESS 0       false   true
+BASE    ff      ADDRESS 0       true    true
+NOBASE  ff      NO_OPE  0       true    true
 
-BYTE    ff      CONST   0       false   true
-WORD    ff      DECIMAL 0       false   true
+BYTE    ff      CONST   -1      false   true
+WORD    ff      DECIMAL -1      false   true
 RESB    ff      DECIMAL 0       false   true
 RESW    ff      DECIMAL 0       false   true
 
 ADD     18      ADDRESS 3       false   false
+ADDF    58      ADDRESS 3       true    false
+ADDR    90      TWO_REG 2       true    false
 SUB     1c      ADDRESS 3       false   false
+SUBF    5c      ADDRESS 3       true    false
+SUBR    94      TWO_REG 2       true    false
 MUL     20      ADDRESS 3       false   false
+MULF    60      ADDRESS 3       true    false
+MULR    98      TWO_REG 2       true    false
 DIV     24      ADDRESS 3       false   false
+DIVF    64      ADDRESS 3       true    false
+DIVR    9c      TWO_REG 2       true    false
 
 AND     40      ADDRESS 3       false   false
 OR      44      ADDRESS 3       false   false
 
 COMP    28      ADDRESS 3       false   false
+COMPF   88      ADDRESS 3       true    false
+COMPR   a0      TWO_REG 2       true    false
 TIX     2c      ADDRESS 3       false   false
+TIXR    b8      ONE_REG 2       true    false
+
+CLEAR   b4      ONE_REG 2       true    false
+FLOAT   c0      NO_OPE  1       true    false
+FIX     c4      NO_OPE  1       true    false
+NORM    c8      NO_OPE  1       true    false
+SHIFTL  a4      TWO_REG 2       true    false
+SHIFTR  a8      TWO_REG 2       true    false
+SSK     ec      ADDRESS 3       true    false
+SVC     b0      ONE_REG 2       true    false
 
 J       3c      ADDRESS 3       false   false
 JEQ     30      ADDRESS 3       false   false
@@ -30,14 +52,28 @@ RSUB    4c      NO_OPE  3       false   false
 LDA     00      ADDRESS 3       false   false
 LDX     04      ADDRESS 3       false   false
 LDL     08      ADDRESS 3       false   false
+LDB     68      ADDRESS 3       true    false
+LDS     6c      ADDRESS 3       true    false
+LDT     74      ADDRESS 3       true    false
+LDF     70      ADDRESS 3       true    false
+LPS     d0      ADDRESS 3       true    flase
 LDCH    50      ADDRESS 3       false   false
 
 STA     0c      ADDRESS 3       false   false
 STX     10      ADDRESS 3       false   false
 STL     14      ADDRESS 3       false   false
+STB     78      ADDRESS 3       true    false
+STS     7c      ADDRESS 3       true    false
+STT     84      ADDRESS 3       true    false
+STF     80      ADDRESS 3       true    false
+STI     d4      ADDRESS 3       true    false
 STSW    e8      ADDRESS 3       false   false
 STCH    54      ADDRESS 3       false   false
 
 TD      e0      ADDRESS 3       false   false
 RD      d8      ADDRESS 3       false   false
 WD      dc      ADDRESS 3       false   false
+
+SIO     f0      NO_OPE  1       true    false
+HIO     f4      NO_OPE  1       true    false
+TIO     f8      NO_OPE  1       true    false

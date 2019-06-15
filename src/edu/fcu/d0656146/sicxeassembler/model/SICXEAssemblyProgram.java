@@ -15,9 +15,11 @@ public class SICXEAssemblyProgram {
     public final HashMap<String, Integer> symbolTable;
     public int programLength;
     public int startAddress;
+    private final boolean isXEEnabled;
 
-    SICXEAssemblyProgram(String filename) {
+    SICXEAssemblyProgram(String filename, boolean isXEEnabled) {
         this.filename = filename;
+        this.isXEEnabled = isXEEnabled;
         codes = new ArrayList<>();
         symbolTable = new HashMap();
     }
@@ -53,7 +55,7 @@ public class SICXEAssemblyProgram {
             }
             addressLable = instruction.substring(0, instruction.indexOf('\t'));
             //judge syntax and fetch
-            if (!isOpcodeLableLegal(addressLable)) {
+            if (!addressLable.isEmpty() && !isOpcodeLableLegal(addressLable)) {
                 throw new AssembleException("Illegal symbol name.", lineNumber);
             }
             instruction = instruction.substring(instruction.indexOf('\t') + 1, instruction.length());
@@ -86,6 +88,7 @@ public class SICXEAssemblyProgram {
                 } catch (NumberFormatException ex) {
                     throw new AssembleException("Illegal operand of START.", lineNumber);
                 }
+                startExist = true;
             } else {
                 if (!startExist) {
                     throw new AssembleException("Instruction before START.", lineNumber);
@@ -97,11 +100,10 @@ public class SICXEAssemblyProgram {
             } else if (mnemonicOpcode.equals("END")) {
                 endExist = true;
             }
-
             //add new instruction into codes' list
-            SICXEInstruction tempInstruction = new SICXEInstruction(addressLable, mnemonicOpcode, operand,
-                    lineNumber, location, instructionTable, registerTable);
-            location += tempInstruction.instructionLength;
+            SICXEInstruction tempInstruction
+                    = new SICXEInstruction(addressLable, mnemonicOpcode, operand,
+                            lineNumber, location, isXEEnabled, instructionTable, registerTable);
             codes.add(tempInstruction);
             //update symbol table
             if (symbolTable.containsKey(addressLable)) {
@@ -110,6 +112,7 @@ public class SICXEAssemblyProgram {
             if (!addressLable.isEmpty()) {
                 symbolTable.put(addressLable, location);
             }
+            location += tempInstruction.instructionLength;
         }
         //check other faults
         if (codes.isEmpty()) {
@@ -123,6 +126,13 @@ public class SICXEAssemblyProgram {
 
     //determine if a opcode or lable legal
     static boolean isOpcodeLableLegal(String opcode) {
-        return !(opcode.length() > 6 || opcode.matches("[a-zA-Z0-9]"));
+        if (opcode.charAt(0) == '@' || opcode.charAt(0) == '#' || opcode.charAt(0) == '+') {
+            opcode = opcode.substring(1);
+        }
+        return !(opcode.length() > 6 || !opcode.matches("[a-zA-Z0-9]+"));
+    }
+
+    public boolean getIsXEEnabled() {
+        return isXEEnabled;
     }
 }

@@ -13,11 +13,12 @@ public class SICXEInstruction extends SICXEStandardInstruction {
     private String addressLable;
     private String operand;
 
-    private boolean isExtended;
-    private boolean isIndexAddressing;
-    private AddressingMode addressingMode;
+    private boolean isExtended = false;
+    private boolean isIndexAddressing = false;
+    private AddressingMode addressingMode = AddressingMode.SIC;
 
-    SICXEInstruction(String addressLable, String mnemonicOpcode, String operand, int lineNumber, int location,
+    SICXEInstruction(String addressLable, String mnemonicOpcode, String operand,
+            int lineNumber, int location, boolean isXEEnabled,
             HashMap<String, SICXEStandardInstruction> instructionTable,
             HashMap<String, SICXERegister> registerTable)
             throws AssembleException {
@@ -30,6 +31,10 @@ public class SICXEInstruction extends SICXEStandardInstruction {
         this.mnemonicOpcode = mnemonicOpcode;
         this.operand = operand;
         //match mnemonic opcode
+        if (mnemonicOpcode.charAt(0) == '+') {
+            isExtended = true;
+            mnemonicOpcode = mnemonicOpcode.substring(1, mnemonicOpcode.length());
+        }
         if (!instructionTable.containsKey(mnemonicOpcode)) {
             throw new AssembleException("Unknown operation " + mnemonicOpcode + ".", lineNumber);
         }
@@ -39,11 +44,20 @@ public class SICXEInstruction extends SICXEStandardInstruction {
         isXEOnly = model.isXEOnly;
         isPsuedo = model.isPsuedo;
         instructionLength = model.instructionLength;
+        if (!isXEEnabled && isXEOnly) {
+            throw new AssembleException(mnemonicOpcode + " is a XE only instruction.", lineNumber);
+
+        }
+        if (isExtended) {
+            if (operandType != OperandType.ADDRESS) {
+                throw new AssembleException(mnemonicOpcode + " cannot be extended.", lineNumber);
+            }
+            instructionLength = 4;
+        }
         //check operand
-        addressingMode = AddressingMode.SIC;
         isIndexAddressing = false;
         String[] registers = operand.split(",");
-        switch (model.operandType) {
+        switch (operandType) {
             case NO_OPE:
                 if (!operand.isEmpty()) {
                     throw new AssembleException("Unexpected operand follow " + mnemonicOpcode + ".", lineNumber);
@@ -65,23 +79,43 @@ public class SICXEInstruction extends SICXEStandardInstruction {
                     throw new AssembleException("Unknown register " + registers[0] + ".", lineNumber);
                 }
                 break;
-
             case ADDRESS:
                 if (registers.length > 1) {
                     if (registers.length == 2 || registers[1].equals("X")) {
                         isIndexAddressing = true;
+                        this.operand = operand.substring(0, operand.length() - 2);
                     } else {
-                        throw new AssembleException("Two much arguments for " + mnemonicOpcode + ".", lineNumber);
+                        throw new AssembleException("Too much arguments for " + mnemonicOpcode + ".", lineNumber);
                     }
-
                 }
-                if (!SICXEAssemblyProgram.isOpcodeLableLegal(operand)) {
+                switch (registers[0].charAt(0)) {
+                    case '#':
+                        addressingMode = AddressingMode.IMMEDIATE;
+                        registers[0] = registers[0].substring(1, registers[0].length());
+                        this.operand = operand.substring(1);
+                        break;
+                    case '@':
+                        addressingMode = AddressingMode.INDIRECT;
+                        registers[0] = registers[0].substring(1, registers[0].length());
+                        this.operand = operand.substring(1);
+                        break;
+                    default:
+                        if (isXEEnabled) {
+                            addressingMode = AddressingMode.XE;
+                        } else {
+                            addressingMode = AddressingMode.SIC;
+                        }
+                }
+                if (!SICXEAssemblyProgram.isOpcodeLableLegal(registers[0])) {
                     throw new AssembleException("Illegal symbol name.", lineNumber);
                 }
                 break;
             case CONST:
                 this.operand = parseConstant(operand);
-                instructionLength = operand.length() / 2;
+                instructionLength = operand.length() - 3;
+                if (operand.charAt(0) == 'X') {
+                    instructionLength /= 2;
+                }
                 break;
             case DECIMAL:
                 //RESW, RESB, WORD
@@ -118,10 +152,10 @@ public class SICXEInstruction extends SICXEStandardInstruction {
 
     private String parseConstant(String operand) throws AssembleException {
         char mode = operand.charAt(0);
-        if (mode != 'C' || mode != 'X' || operand.charAt(1) != '\'' || operand.charAt(operand.length() - 1) != '\'') {
+        if ((mode != 'C' && mode != 'X') || operand.charAt(1) != '\'' || operand.charAt(operand.length() - 1) != '\'') {
             throw new AssembleException("Illegal operand of " + this.mnemonicOpcode + ".", this.lineNumber);
         }
-        operand = operand.substring(2, operand.length());
+        operand = operand.substring(2, operand.length() - 1);
         if (mode == 'C') {
             String convertedOperand = "";
             for (char c : operand.toCharArray()) {
@@ -155,5 +189,25 @@ public class SICXEInstruction extends SICXEStandardInstruction {
 
     public int getLocation() {
         return location;
+    }
+
+    public boolean getIsExtended() {
+        return isExtended;
+    }
+
+    public AddressingMode getAddressingMode() {
+        return addressingMode;
+    }
+
+    public boolean getIsIndexAddressing() {
+        return isIndexAddressing;
+    }
+
+    public int getInstructionLength() {
+        return instructionLength;
+    }
+
+    public String getMnemonicOpcode() {
+        return mnemonicOpcode;
     }
 }

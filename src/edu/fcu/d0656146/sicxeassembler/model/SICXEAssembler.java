@@ -9,14 +9,19 @@ import java.util.HashMap;
  */
 public class SICXEAssembler {
 
-    private static final int SIC_MEMORY_LIMIT = 0x7FFF;
+    public static final int SIC_MEMORY_LIMIT = 0x7FFF;
+    public static final int XE_MEMORY_LIMIT = 0xFFFFF;
+
+    private boolean isXEEnabled = false;
 
     private SICXEAssemblyProgram asmProgram;
     private SICXEObjectProgram objProgram;
-    private HashMap<String, SICXEStandardInstruction> instructionTable;
-    private HashMap<String, SICXERegister> registerTable;
+    private final HashMap<String, SICXEStandardInstruction> instructionTable;
+    private final HashMap<String, SICXERegister> registerTable;
 
     public SICXEAssembler() throws IOException {
+        instructionTable = new HashMap<>();
+        registerTable = new HashMap<>();
         initInstructionTable("instructions");
         initRegisterTable("registers");
     }
@@ -30,7 +35,7 @@ public class SICXEAssembler {
      * @throws edu.fcu.d0656146.sicxeassembler.model.AssembleException
      */
     public void open(String filename) throws AssembleException, IOException {
-        asmProgram = new SICXEAssemblyProgram(filename);
+        asmProgram = new SICXEAssemblyProgram(filename, isXEEnabled);
         asmProgram.parseCode(instructionTable, registerTable);
     }
 
@@ -49,27 +54,37 @@ public class SICXEAssembler {
         writer.write(objProgram.programLength);
         int part = 0;
         int length = objProgram.breakPoint.get(part + 1) - objProgram.breakPoint.get(part);
-        code = Integer.toHexString(length);
-        if (code.length() < 2) {
-            code = "0" + code;
-        }
-        writer.write("\nT" + code);
-        for (String objectCode : objProgram.objectCodes) {
-            if (objectCode.equals("RES")) {
+        code = Integer.toHexString(length).toUpperCase();
+        code = SICXEObjectProgram.patchZeroBefore(code, 2);
+        code = Integer.toHexString(objProgram.breakPoint.get(part)).toUpperCase() + code;
+        code = SICXEObjectProgram.patchZeroBefore(code, 8);
+        writer.write("\r\nT" + code);
+        for (int i = 0; i < objProgram.objectCodes.size(); i++) {
+            String objectCode = objProgram.objectCodes.get(i);
+            if (objectCode.startsWith("RES")) {
                 part++;
-                length = objProgram.breakPoint.get(part + 1) - objProgram.breakPoint.get(part);
-                code = Integer.toHexString(length);
-                if (code.length() < 2) {
-                    code = "0" + code;
-                }
-                writer.write("\nT" + code);
+                length = objProgram.breakPoint.get(part + 1)
+                        - objProgram.breakPoint.get(part)
+                        - objProgram.location.get(i + 1)
+                        + objProgram.location.get(i);
+                code = Integer.toHexString(length).toUpperCase();
+                code = SICXEObjectProgram.patchZeroBefore(code, 2);
+                code = Integer.toHexString(objProgram.breakPoint.get(part)
+                        + objProgram.location.get(i + 1) - objProgram.location.get(i)).toUpperCase() + code;
+                code = SICXEObjectProgram.patchZeroBefore(code, 8);
+                writer.write(objectCode.substring(3));
+                writer.write("\r\nT" + code);
+            } else {
+                writer.write(objectCode);
             }
-            writer.write(objectCode);
         }
-        writer.write("\nE" + objProgram.startAddress + "\n");
+        writer.write("\r\nE" + objProgram.startAddress + "\n");
+        writer.flush();
+        writer.close();
     }
 
     public void enableXE() {
+        isXEEnabled = true;
     }
 
     private void initInstructionTable(String filename) throws IOException {
@@ -89,7 +104,8 @@ public class SICXEAssembler {
             OperandType operandType = OperandType.valueOf(props[2]);
             int instructionLength = Integer.parseInt(props[3]);
             instructionTable.put(mnemonicOpcode,
-                    new SICXEStandardInstruction(isPsuedo, isXEOnly, mnemonicOpcode, hexOpcode, operandType, instructionLength));
+                    new SICXEStandardInstruction(isPsuedo, isXEOnly, mnemonicOpcode,
+                            hexOpcode, operandType, instructionLength));
         }
     }
 
